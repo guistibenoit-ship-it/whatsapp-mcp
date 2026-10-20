@@ -4,6 +4,17 @@ from pathlib import Path
 p = Path('main.go')
 s = p.read_text()
 patches = [
+    ('"go.mau.fi/whatsmeow/store/sqlstore"',
+     '"go.mau.fi/whatsmeow/store/sqlstore"\n\t"go.mau.fi/whatsmeow/store"'),
+    ('client := whatsmeow.NewClient(deviceStore, logger)',
+     '''latestVersion, versionErr := whatsmeow.GetLatestVersion(&http.Client{Timeout: 30 * time.Second})
+    if versionErr != nil {
+        logger.Errorf("Cannot fetch current WhatsApp Web version: %v", versionErr)
+        return
+    }
+    store.SetWAVersion(*latestVersion)
+    logger.Infof("Using current WhatsApp Web version: %s", latestVersion.String())
+    client := whatsmeow.NewClient(deviceStore, logger)'''),
     ('"github.com/mdp/qrterminal"', ''),
     ('qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)',
      'if err := os.WriteFile("/data/qr.txt", []byte(evt.Code), 0600); err != nil { logger.Errorf("Cannot save pairing QR") }'),
