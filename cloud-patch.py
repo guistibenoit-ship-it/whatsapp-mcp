@@ -4,10 +4,15 @@ from pathlib import Path
 p = Path('main.go')
 s = p.read_text()
 patches = [
+    ('sqlstore.New("sqlite3",', 'sqlstore.New(context.Background(), "sqlite3",'),
+    ('container.GetFirstDevice()', 'container.GetFirstDevice(context.Background())'),
+    ('client.Download(downloader)', 'client.Download(context.Background(), downloader)'),
+    ('client.GetGroupInfo(jid)', 'client.GetGroupInfo(context.Background(), jid)'),
+    ('client.Store.Contacts.GetContact(jid)', 'client.Store.Contacts.GetContact(context.Background(), jid)'),
     ('"go.mau.fi/whatsmeow/store/sqlstore"',
      '"go.mau.fi/whatsmeow/store/sqlstore"\n\t"go.mau.fi/whatsmeow/store"'),
     ('client := whatsmeow.NewClient(deviceStore, logger)',
-     '''latestVersion, versionErr := whatsmeow.GetLatestVersion(&http.Client{Timeout: 30 * time.Second})
+     '''latestVersion, versionErr := whatsmeow.GetLatestVersion(context.Background(), &http.Client{Timeout: 30 * time.Second})
     if versionErr != nil {
         logger.Errorf("Cannot fetch current WhatsApp Web version: %v", versionErr)
         return
